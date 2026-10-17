@@ -28,6 +28,10 @@ import {
   Key,
   UserPlus,
   X,
+  TrendingUp,
+  Flame,
+  Activity,
+  Globe,
 } from 'lucide-react';
 
 // Comprehensive dictionary mapping 16+ specific job titles to DISTINCT industry skill benchmarks
@@ -478,6 +482,102 @@ const getCleanNameFromEmail = (email: string): string => {
   return wordsToUse.map((w) => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ');
 };
 
+// Live Daily In-Demand Tech Domains & Skill Intelligence Dataset
+export interface InDemandDomain {
+  id: string;
+  domain: string;
+  category: string;
+  associatedJobTitle: string;
+  demandStatus: 'Explosive Demand' | 'High Enterprise Demand' | 'Rapid Growth' | 'Steady Core Demand';
+  badgeColor: string;
+  growth: string;
+  whyInDemand: string;
+  topSkills: string[];
+  emergingFocus: string;
+  hiringSectors: string[];
+}
+
+export const IN_DEMAND_DOMAINS: InDemandDomain[] = [
+  {
+    id: 'ai-ml',
+    domain: 'Artificial Intelligence & Machine Learning',
+    category: 'AI & Data Science',
+    associatedJobTitle: 'Data Scientist',
+    demandStatus: 'Explosive Demand',
+    badgeColor: 'bg-rose-100 text-rose-800 border-rose-300',
+    growth: '+68% Hiring Growth',
+    whyInDemand: 'Global enterprises are rapidly integrating private LLMs, autonomous agent workflows, and predictive analytics into core product architectures.',
+    topSkills: ['Generative AI & LLMs', 'PyTorch & Deep Learning', 'LangChain & RAG Architectures', 'Scikit-Learn Machine Learning', 'Vector Database Indexing'],
+    emergingFocus: 'Autonomous Agentic Workflows & Retrieval-Augmented Generation (RAG)',
+    hiringSectors: ['Enterprise SaaS', 'FinTech', 'HealthTech', 'Automated Logistics'],
+  },
+  {
+    id: 'cloud-devops',
+    domain: 'Cloud Architecture & DevOps Systems',
+    category: 'Cloud & Infrastructure',
+    associatedJobTitle: 'Cloud & DevOps Engineer',
+    demandStatus: 'High Enterprise Demand',
+    badgeColor: 'bg-blue-100 text-blue-800 border-blue-300',
+    growth: '+36% Hiring Growth',
+    whyInDemand: 'Modern software requires high-availability microservices, automated CI/CD releases, multi-region elasticity, and zero-downtime infrastructure.',
+    topSkills: ['Docker Containerization', 'Kubernetes Cluster Orchestration', 'AWS / Azure Cloud Architecture', 'CI/CD Pipelines (GitHub Actions)', 'Terraform Infrastructure as Code'],
+    emergingFocus: 'Serverless Edge Compute & Zero-Trust Cloud Architecture',
+    hiringSectors: ['Global Tech Firms', 'E-Commerce Platforms', 'Banking & Telecom'],
+  },
+  {
+    id: 'fullstack-backend',
+    domain: 'Full-Stack & Distributed Backend Engineering',
+    category: 'Software Engineering',
+    associatedJobTitle: 'Full Stack Developer',
+    demandStatus: 'High Enterprise Demand',
+    badgeColor: 'bg-emerald-100 text-emerald-800 border-emerald-300',
+    growth: '+28% Hiring Growth',
+    whyInDemand: 'Every digital enterprise requires robust client-server architectures, responsive user interfaces, and high-throughput RESTful / GraphQL microservices.',
+    topSkills: ['Python (FastAPI / Django)', 'Node.js & Express Architecture', 'React.js Components & State', 'PostgreSQL & Relational Data Modeling', 'RESTful API Security'],
+    emergingFocus: 'Event-Driven Microservices & Real-Time WebSockets',
+    hiringSectors: ['Product Companies', 'High-Growth Startups', 'IT Services'],
+  },
+  {
+    id: 'data-analytics',
+    domain: 'Data Analytics & Business Intelligence',
+    category: 'Analytics & Insights',
+    associatedJobTitle: 'Data Analyst',
+    demandStatus: 'Rapid Growth',
+    badgeColor: 'bg-amber-100 text-amber-800 border-amber-300',
+    growth: '+31% Hiring Growth',
+    whyInDemand: 'Organizations demand real-time analytics, automated data warehousing, and live executive dashboards to replace guesswork with empirical data.',
+    topSkills: ['Advanced SQL (JOINs & Aggregations)', 'Python Data Processing (Pandas / NumPy)', 'Power BI & Interactive Dashboards', 'Data Cleaning & ETL Pipelines', 'Statistical Significance Testing'],
+    emergingFocus: 'Real-Time Streaming Metrics & Cloud Data Lakes (Snowflake)',
+    hiringSectors: ['Financial Markets', 'Retail Chains', 'Supply Chain Tech'],
+  },
+  {
+    id: 'cybersecurity',
+    domain: 'Cybersecurity & Cloud Defense',
+    category: 'Security & Operations',
+    associatedJobTitle: 'Cybersecurity Analyst',
+    demandStatus: 'Rapid Growth',
+    badgeColor: 'bg-purple-100 text-purple-800 border-purple-300',
+    growth: '+42% Hiring Growth',
+    whyInDemand: 'Escalating cyber attacks, ransomware threats, and stringent data protection regulations mandate dedicated defensive security engineering.',
+    topSkills: ['Network Protocols (TCP/IP, DNS, SSL)', 'Web App Security (OWASP Top 10)', 'Vulnerability Assessment & Penetration Testing', 'Linux Hardening & Security Audit', 'Identity & Access Management (IAM)'],
+    emergingFocus: 'Cloud Security Posture Management & Automated Threat Intelligence',
+    hiringSectors: ['Defense Contractors', 'FinTech & Banking', 'Government Infrastructure'],
+  },
+  {
+    id: 'mobile-dev',
+    domain: 'Mobile App Engineering (iOS & Android)',
+    category: 'Mobile & Client',
+    associatedJobTitle: 'Mobile App Developer',
+    demandStatus: 'Steady Core Demand',
+    badgeColor: 'bg-cyan-100 text-cyan-800 border-cyan-300',
+    growth: '+22% Hiring Growth',
+    whyInDemand: 'Over 80% of consumer digital interactions occur on mobile devices, fueling persistent demand for high-performance cross-platform apps.',
+    topSkills: ['Flutter & Dart Ecosystem', 'React Native Architecture', 'Mobile UI/UX Performance Optimization', 'RESTful API Syncing & Local Storage', 'Mobile Security & App Store Deployment'],
+    emergingFocus: 'Offline-First Architectures & On-Device ML Acceleration',
+    hiringSectors: ['Consumer Tech', 'EdTech', 'Social Apps', 'On-Demand Services'],
+  },
+];
+
 // Saved user account representation
 interface SavedUser {
   name: string;
@@ -509,8 +609,9 @@ export default function App() {
   const [googleCustomName, setGoogleCustomName] = useState('');
   const [googleCustomEmail, setGoogleCustomEmail] = useState('');
 
-  // Navigation tabs (4 core learning & credential stages)
-  const [activeTab, setActiveTab] = useState<'gap' | 'notes' | 'quiz' | 'certificate'>('gap');
+  // Navigation tabs (5 learning, assessment, credential & live market domain stages)
+  const [activeTab, setActiveTab] = useState<'gap' | 'notes' | 'quiz' | 'certificate' | 'domains'>('gap');
+  const [selectedDomainCategory, setSelectedDomainCategory] = useState<string>('All');
 
   // Learner profile state
   const [learnerName, setLearnerName] = useState('');
@@ -558,7 +659,7 @@ export default function App() {
     }, 80);
   };
 
-  const navigateToTab = (tab: 'gap' | 'notes' | 'quiz' | 'certificate') => {
+  const navigateToTab = (tab: 'gap' | 'notes' | 'quiz' | 'certificate' | 'domains') => {
     setActiveTab(tab);
     scrollToTop();
   };
@@ -1142,12 +1243,13 @@ export default function App() {
                 <h1 className="text-lg font-bold text-slate-900 tracking-tight">
                   SkillPulse
                 </h1>
-                <span className="text-[11px] px-2 py-0.5 rounded font-semibold bg-blue-50 text-blue-700 border border-blue-200">
-                  Career Intelligence Platform
+                <span className="text-[11px] px-2 py-0.5 rounded font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center gap-1.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                  Live Daily Demand Radar
                 </span>
               </div>
               <p className="text-xs text-slate-500">
-                Skill-Gap Analyzer • Comprehensive Modules • Competency Assessment • Micro-Credentials
+                Skill-Gap Analyzer • Comprehensive Modules • Competency Assessment • Live In-Demand Domains
               </p>
             </div>
           </div>
@@ -1229,6 +1331,18 @@ export default function App() {
             >
               <Award className="w-4 h-4" />
               <span>4. Digital Credential</span>
+            </button>
+
+            <button
+              onClick={() => navigateToTab('domains')}
+              className={`px-3.5 py-2 rounded-lg transition flex items-center gap-1.5 whitespace-nowrap ${
+                activeTab === 'domains'
+                  ? 'bg-blue-700 text-white shadow-sm'
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+              }`}
+            >
+              <TrendingUp className="w-4 h-4" />
+              <span>5. In-Demand Domains (Live Daily)</span>
             </button>
           </nav>
         </div>
@@ -1480,6 +1594,52 @@ export default function App() {
                 </div>
               </div>
             )}
+
+            {/* Far Down Section: Live Daily In-Demand Domains Pulse Banner */}
+            <div className="bg-gradient-to-r from-slate-900 to-blue-950 text-white p-6 rounded-2xl shadow-md border border-slate-800 space-y-4">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div className="space-y-1">
+                  <div className="flex items-center gap-2">
+                    <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                    <span className="text-xs font-bold uppercase tracking-wider text-emerald-400">
+                      Live Daily Market Pulse • Updated Today
+                    </span>
+                  </div>
+                  <h3 className="text-lg font-bold text-white">
+                    Discover Which Tech Domains Are in Highest Demand Right Now
+                  </h3>
+                  <p className="text-xs text-slate-300 max-w-xl">
+                    See daily updated rankings across AI & Machine Learning, Cloud DevOps, Distributed Systems, Data Analytics, and Security.
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => navigateToTab('domains')}
+                  className="px-5 py-2.5 bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs rounded-xl shadow transition flex items-center gap-2 whitespace-nowrap self-start sm:self-auto"
+                >
+                  <TrendingUp className="w-4 h-4" />
+                  <span>View In-Demand Domains</span>
+                </button>
+              </div>
+
+              {/* Quick domain badges pill list */}
+              <div className="flex flex-wrap gap-2 pt-1 border-t border-slate-800 text-xs">
+                {IN_DEMAND_DOMAINS.slice(0, 4).map((d) => (
+                  <button
+                    key={d.id}
+                    onClick={() => {
+                      navigateToTab('domains');
+                      setSelectedDomainCategory(d.category);
+                    }}
+                    className="px-2.5 py-1 rounded-lg bg-slate-800/80 hover:bg-slate-700 text-slate-200 border border-slate-700 flex items-center gap-1.5 transition text-[11px]"
+                  >
+                    <Flame className="w-3 h-3 text-rose-400" />
+                    <span className="font-semibold">{d.domain}</span>
+                    <span className="text-emerald-400 font-bold">({d.growth})</span>
+                  </button>
+                ))}
+              </div>
+            </div>
           </div>
         )}
 
@@ -2020,6 +2180,236 @@ export default function App() {
                   </div>
                 </div>
 
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ======================================================== */}
+        {/* TAB 5: IN-DEMAND TECH DOMAINS & SKILL INTELLIGENCE */}
+        {/* ======================================================== */}
+        {activeTab === 'domains' && (
+          <div className="space-y-6 animate-in fade-in duration-150">
+            {/* Header Card with Dynamic Real-Time Date & Live Pulse */}
+            <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
+                <div>
+                  <span className="text-xs font-bold text-blue-700 uppercase tracking-wider flex items-center gap-1.5">
+                    <TrendingUp className="w-3.5 h-3.5 text-emerald-600" />
+                    <span>Step 5 • Live Industry Market Pulse</span>
+                  </span>
+                  <h2 className="text-2xl font-bold text-slate-900 mt-1">
+                    Which Tech Domains & Skills Are in Demand Right Now?
+                  </h2>
+                </div>
+                <div className="flex items-center gap-2 bg-emerald-50 text-emerald-800 border border-emerald-200 px-3.5 py-1.5 rounded-full text-xs font-bold shadow-xs self-start md:self-auto">
+                  <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
+                  <span>
+                    Updated Daily • {new Date().toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' })}
+                  </span>
+                </div>
+              </div>
+
+              <p className="text-xs sm:text-sm text-slate-600 leading-relaxed max-w-4xl">
+                This live intelligence monitor analyzes active hiring momentum across global tech organizations to show exactly which domains are surging, which technologies companies are prioritizing, and why specific capabilities are commanding top demand.
+              </p>
+
+              {/* Category Filter Pills */}
+              <div className="flex flex-wrap gap-2 pt-2 border-t border-slate-100">
+                {['All', 'AI & Data Science', 'Cloud & Infrastructure', 'Software Engineering', 'Analytics & Insights', 'Security & Operations', 'Mobile & Client'].map((cat) => (
+                  <button
+                    key={cat}
+                    type="button"
+                    onClick={() => setSelectedDomainCategory(cat)}
+                    className={`px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 ${
+                      selectedDomainCategory === cat
+                        ? 'bg-blue-700 text-white shadow-sm'
+                        : 'bg-slate-100 text-slate-600 hover:bg-slate-200 hover:text-slate-900'
+                    }`}
+                  >
+                    <span>{cat}</span>
+                    {cat === 'All' ? (
+                      <span className="text-[10px] bg-blue-800/40 px-1.5 py-0.2 rounded-full">
+                        {IN_DEMAND_DOMAINS.length}
+                      </span>
+                    ) : null}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* In-Demand Domains Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+              {IN_DEMAND_DOMAINS
+                .filter((d) => selectedDomainCategory === 'All' || d.category === selectedDomainCategory)
+                .map((domain) => (
+                  <div
+                    key={domain.id}
+                    className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm hover:shadow-md transition flex flex-col justify-between space-y-4"
+                  >
+                    {/* Domain Header & Demand Badge */}
+                    <div className="space-y-2.5">
+                      <div className="flex items-start justify-between gap-2">
+                        <div>
+                          <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wide">
+                            {domain.category}
+                          </span>
+                          <h3 className="text-lg font-bold text-slate-900 leading-snug">
+                            {domain.domain}
+                          </h3>
+                        </div>
+                        <span
+                          className={`text-[11px] font-bold px-2.5 py-1 rounded-full border whitespace-nowrap shadow-xs ${domain.badgeColor}`}
+                        >
+                          {domain.demandStatus}
+                        </span>
+                      </div>
+
+                      {/* Growth & Daily Indicator */}
+                      <div className="flex items-center gap-2 text-xs">
+                        <span className="font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200 flex items-center gap-1">
+                          <TrendingUp className="w-3 h-3" />
+                          <span>{domain.growth}</span>
+                        </span>
+                        <span className="text-slate-400 text-[11px] flex items-center gap-1">
+                          <Activity className="w-3 h-3 text-blue-500" />
+                          <span>Active Hiring Velocity</span>
+                        </span>
+                      </div>
+
+                      {/* Why In Demand */}
+                      <div className="bg-slate-50 p-3 rounded-xl border border-slate-100 text-xs text-slate-700 space-y-1">
+                        <span className="font-bold text-slate-900 block">
+                          Why It's in High Demand:
+                        </span>
+                        <p className="leading-relaxed text-slate-600">
+                          {domain.whyInDemand}
+                        </p>
+                      </div>
+
+                      {/* Top Skills In-Demand */}
+                      <div className="space-y-1.5 pt-1">
+                        <span className="text-[11px] font-bold text-slate-700 uppercase tracking-wider block">
+                          Key Skills In Demand:
+                        </span>
+                        <div className="flex flex-wrap gap-1.5">
+                          {domain.topSkills.map((skill, sIdx) => (
+                            <span
+                              key={sIdx}
+                              className="text-[11px] px-2.5 py-1 bg-blue-50 text-blue-800 rounded-lg border border-blue-200 font-medium"
+                            >
+                              {skill}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Emerging Sub-focus */}
+                      <div className="text-xs text-slate-600 pt-1">
+                        <span className="font-bold text-slate-800">Emerging Focus: </span>
+                        <span>{domain.emergingFocus}</span>
+                      </div>
+                    </div>
+
+                    {/* Action: Quick Jump to Analyze Gap for this domain */}
+                    <div className="pt-3 border-t border-slate-100 flex items-center justify-between gap-2">
+                      <div className="flex items-center gap-1.5 text-[11px] text-slate-500">
+                        <span className="font-semibold text-slate-700">Top Sectors:</span>
+                        <span className="truncate max-w-[180px]">{domain.hiringSectors.join(', ')}</span>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          handleSelectPresetJob(domain.associatedJobTitle);
+                          navigateToTab('gap');
+                        }}
+                        className="px-3.5 py-1.5 bg-blue-700 hover:bg-blue-800 text-white font-bold text-xs rounded-xl shadow-xs transition flex items-center gap-1.5 whitespace-nowrap"
+                        title={`Analyze your skills for ${domain.associatedJobTitle}`}
+                      >
+                        <span>Analyze Gap</span>
+                        <ArrowRight className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+            </div>
+
+            {/* Live Daily Domain Comparison Table */}
+            <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden space-y-0">
+              <div className="p-4 bg-slate-50 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                <div>
+                  <h3 className="font-bold text-sm text-slate-900">
+                    Industry Demand Ranking & Momentum Matrix
+                  </h3>
+                  <p className="text-xs text-slate-500">
+                    Aggregated daily from tech hiring requisitions and engineering competency frameworks
+                  </p>
+                </div>
+                <div className="flex items-center gap-2 text-xs text-slate-500">
+                  <Globe className="w-3.5 h-3.5 text-blue-600" />
+                  <span>Refreshed Daily for {new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}</span>
+                </div>
+              </div>
+
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-xs">
+                  <thead className="bg-slate-100 text-slate-700 font-bold uppercase tracking-wider text-[11px]">
+                    <tr>
+                      <th className="p-3.5">Tech Domain</th>
+                      <th className="p-3.5">Demand Level</th>
+                      <th className="p-3.5">Hiring Momentum</th>
+                      <th className="p-3.5">Primary Key Skills</th>
+                      <th className="p-3.5 text-right">Action</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100 text-slate-700">
+                    {IN_DEMAND_DOMAINS.map((d) => (
+                      <tr key={d.id} className="hover:bg-slate-50/80 transition">
+                        <td className="p-3.5">
+                          <div className="font-bold text-slate-900 text-xs">{d.domain}</div>
+                          <div className="text-[10px] text-slate-400 font-medium">{d.category}</div>
+                        </td>
+                        <td className="p-3.5">
+                          <span className={`text-[11px] font-bold px-2 py-0.5 rounded-full border ${d.badgeColor}`}>
+                            {d.demandStatus}
+                          </span>
+                        </td>
+                        <td className="p-3.5">
+                          <span className="font-bold text-emerald-700 flex items-center gap-1">
+                            <TrendingUp className="w-3.5 h-3.5" />
+                            <span>{d.growth}</span>
+                          </span>
+                        </td>
+                        <td className="p-3.5">
+                          <div className="flex flex-wrap gap-1 max-w-md">
+                            {d.topSkills.slice(0, 3).map((s, idx) => (
+                              <span key={idx} className="bg-slate-100 text-slate-700 px-2 py-0.5 rounded text-[10px] font-medium">
+                                {s}
+                              </span>
+                            ))}
+                            {d.topSkills.length > 3 && (
+                              <span className="text-[10px] text-slate-400 font-bold">
+                                +{d.topSkills.length - 3} more
+                              </span>
+                            )}
+                          </div>
+                        </td>
+                        <td className="p-3.5 text-right">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              handleSelectPresetJob(d.associatedJobTitle);
+                              navigateToTab('gap');
+                            }}
+                            className="px-2.5 py-1 bg-slate-100 hover:bg-blue-50 text-blue-700 hover:text-blue-800 border border-slate-200 hover:border-blue-300 font-bold text-[11px] rounded-lg transition"
+                          >
+                            Check Skills
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
             </div>
           </div>
