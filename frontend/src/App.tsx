@@ -483,7 +483,7 @@ const getCleanNameFromEmail = (email: string): string => {
 };
 
 // Live Daily In-Demand Tech Domains & Skill Intelligence Dataset
-export interface InDemandDomain {
+interface InDemandDomain {
   id: string;
   domain: string;
   category: string;
@@ -497,7 +497,7 @@ export interface InDemandDomain {
   hiringSectors: string[];
 }
 
-export const IN_DEMAND_DOMAINS: InDemandDomain[] = [
+const IN_DEMAND_DOMAINS: InDemandDomain[] = [
   {
     id: 'ai-ml',
     domain: 'Artificial Intelligence & Machine Learning',
