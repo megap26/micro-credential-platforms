@@ -1,0 +1,23 @@
+{
+  "name": "skillpulse-platform",
+  "version": "1.0.0",
+  "description": "AI-Powered Micro-Credential Curriculum Generation Platform Driven by Real-Time Global Job Market Skill Demands",
+  "private": true,
+  "scripts": {
+    "server": "node backend/server.js",
+    "client": "npm.cmd --prefix frontend run dev",
+    "build": "npm.cmd --prefix frontend run build"
+  },
+  "keywords": [
+    "micro-credentials",
+    "ai-curriculum",
+    "job-market-demands",
+    "skill-gap-analysis",
+    "digital-credentials",
+    "react",
+    "nodejs",
+    "mongodb"
+  ],
+  "author": "SkillPulse Platform Architects",
+  "license": "ISC"
+}
