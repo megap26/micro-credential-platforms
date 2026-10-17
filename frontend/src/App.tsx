@@ -435,17 +435,7 @@ CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]`,
   },
 };
 
-// Global Market Demand Intelligence Benchmarks with SALARY IN INDIAN RUPEES (₹ LPA)
-const MARKET_TRENDS = [
-  { skill: 'Python (Software & AI Development)', demand: '97%', openings: '48,000 Jobs', avgSalary: '₹8 - 18 LPA', growth: '+28%' },
-  { skill: 'Data Structures & Algorithms (DSA)', demand: '98%', openings: '52,000 Jobs', avgSalary: '₹8 - 22 LPA', growth: '+20%' },
-  { skill: 'SQL & Relational Databases', demand: '94%', openings: '44,000 Jobs', avgSalary: '₹6 - 14 LPA', growth: '+12%' },
-  { skill: 'React.js & Frontend Architecture', demand: '95%', openings: '39,000 Jobs', avgSalary: '₹7 - 16 LPA', growth: '+18%' },
-  { skill: 'Node.js & Backend REST APIs', demand: '92%', openings: '34,000 Jobs', avgSalary: '₹7 - 15 LPA', growth: '+15%' },
-  { skill: 'Docker & Basic Cloud Deployment', demand: '90%', openings: '30,000 Jobs', avgSalary: '₹9 - 18 LPA', growth: '+24%' },
-  { skill: 'Git & Version Control', demand: '99%', openings: '60,000 Jobs', avgSalary: '₹6 - 15 LPA', growth: '+8%' },
-  { skill: 'Generative AI & LLM Integration', demand: '89%', openings: '20,000 Jobs', avgSalary: '₹12 - 26 LPA', growth: '+64%' },
-];
+
 
 // Authentic Google Logo SVG Component
 const GoogleLogo = () => (
@@ -488,7 +478,27 @@ const getCleanNameFromEmail = (email: string): string => {
   return wordsToUse.map((w) => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ');
 };
 
+// Saved user account representation
+interface SavedUser {
+  name: string;
+  email: string;
+  provider: 'email' | 'google';
+}
+
 export default function App() {
+  // Saved user profile persisted in localStorage (remembers only real previously logged-in account)
+  const [savedUser, setSavedUser] = useState<SavedUser | null>(() => {
+    try {
+      const stored = localStorage.getItem('skillpulse_saved_user');
+      if (stored) {
+        return JSON.parse(stored);
+      }
+    } catch {
+      // ignore parse error
+    }
+    return null;
+  });
+
   // Authentication / User Session State (starts logged out so user enters Mail ID or Google)
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [authMode, setAuthMode] = useState<'signin' | 'signup'>('signin');
@@ -499,8 +509,8 @@ export default function App() {
   const [googleCustomName, setGoogleCustomName] = useState('');
   const [googleCustomEmail, setGoogleCustomEmail] = useState('');
 
-  // Navigation tabs
-  const [activeTab, setActiveTab] = useState<'gap' | 'notes' | 'quiz' | 'certificate' | 'trends'>('gap');
+  // Navigation tabs (4 core learning & credential stages)
+  const [activeTab, setActiveTab] = useState<'gap' | 'notes' | 'quiz' | 'certificate'>('gap');
 
   // Learner profile state
   const [learnerName, setLearnerName] = useState('');
@@ -548,7 +558,7 @@ export default function App() {
     }, 80);
   };
 
-  const navigateToTab = (tab: 'gap' | 'notes' | 'quiz' | 'certificate' | 'trends') => {
+  const navigateToTab = (tab: 'gap' | 'notes' | 'quiz' | 'certificate') => {
     setActiveTab(tab);
     scrollToTop();
   };
@@ -672,30 +682,80 @@ export default function App() {
     setCredentialId(`CRED-2026-SP-${Math.floor(1000 + Math.random() * 9000)}`);
   };
 
+  // Persist logged-in user credentials to localStorage
+  const saveUserSession = (name: string, email: string, provider: 'email' | 'google') => {
+    const cleanName = name.trim() || 'Learner';
+    const cleanEmail = email.trim();
+    const user: SavedUser = {
+      name: cleanName,
+      email: cleanEmail,
+      provider,
+    };
+    try {
+      localStorage.setItem('skillpulse_saved_user', JSON.stringify(user));
+    } catch {
+      // ignore storage errors
+    }
+    setSavedUser(user);
+    setLearnerName(cleanName);
+    setAuthEmail(cleanEmail);
+    setAuthProvider(provider);
+    setIsLoggedIn(true);
+  };
+
+  // 1-Click login using previously logged-in account
+  const handleQuickLoginSaved = () => {
+    if (!savedUser) return;
+    setLearnerName(savedUser.name);
+    setAuthEmail(savedUser.email);
+    setAuthProvider(savedUser.provider);
+    setIsLoggedIn(true);
+  };
+
+  // Remove saved account credentials
+  const handleRemoveSavedUser = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    try {
+      localStorage.removeItem('skillpulse_saved_user');
+    } catch {
+      // ignore
+    }
+    setSavedUser(null);
+  };
+
+  // Keep savedUser name synced when edited by learner in dashboard
+  const handleUpdateLearnerName = (newName: string) => {
+    setLearnerName(newName);
+    if (savedUser) {
+      const updated = { ...savedUser, name: newName };
+      setSavedUser(updated);
+      try {
+        localStorage.setItem('skillpulse_saved_user', JSON.stringify(updated));
+      } catch {
+        // ignore
+      }
+    }
+  };
+
   // Google Login Handler
   const handleGoogleLogin = (name: string, email: string) => {
-    setLearnerName(name.trim() || 'Learner');
-    setAuthEmail(email.trim());
-    setAuthProvider('google');
     setShowGoogleModal(false);
-    setIsLoggedIn(true);
+    saveUserSession(name, email, 'google');
   };
 
   // Email Sign In Handler - explicitly requires user-entered name for certificate
   const handleEmailSignIn = (e: React.FormEvent) => {
     e.preventDefault();
     if (!authEmail.trim() || !learnerName.trim()) return;
-    setAuthProvider('email');
-    setIsLoggedIn(true);
+    saveUserSession(learnerName, authEmail, 'email');
   };
 
   // Create Account Handler - explicitly requires user-entered name for certificate
   const handleCreateAccount = (e: React.FormEvent) => {
     e.preventDefault();
     if (!authEmail.trim() || !learnerName.trim()) return;
-    setAuthProvider('email');
     setKnownSkills([]);
-    setIsLoggedIn(true);
+    saveUserSession(learnerName, authEmail, 'email');
   };
 
   // -------------------------------------------------------------
@@ -722,40 +782,44 @@ export default function App() {
                 </button>
               </div>
 
-              <p className="text-xs text-slate-500">
-                Choose an account to continue to <strong>SkillPulse Platform</strong>:
-              </p>
-
-              {/* Suggested Google Accounts */}
-              <div className="space-y-2">
-                <button
-                  type="button"
-                  onClick={() => handleGoogleLogin('Alex Morgan', 'alex.morgan.student@gmail.com')}
-                  className="w-full flex items-center gap-3 p-3 rounded-2xl border border-slate-200 hover:border-blue-500 hover:bg-blue-50/50 transition text-left group"
-                >
-                  <div className="w-9 h-9 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold text-xs shadow-sm">
-                    A
+              {savedUser ? (
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <p className="text-xs text-slate-600 font-medium">
+                      Previously logged in account:
+                    </p>
+                    <button
+                      type="button"
+                      onClick={handleRemoveSavedUser}
+                      className="text-[10px] text-slate-400 hover:text-rose-600 font-semibold transition"
+                    >
+                      Forget
+                    </button>
                   </div>
-                  <div className="flex-1 truncate">
-                    <div className="text-xs font-bold text-slate-800 group-hover:text-blue-700">Alex Morgan</div>
-                    <div className="text-[11px] text-slate-500 truncate">alex.morgan.student@gmail.com</div>
-                  </div>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => handleGoogleLogin('College Learner', 'learner.project@gmail.com')}
-                  className="w-full flex items-center gap-3 p-3 rounded-2xl border border-slate-200 hover:border-blue-500 hover:bg-blue-50/50 transition text-left group"
-                >
-                  <div className="w-9 h-9 rounded-full bg-emerald-600 text-white flex items-center justify-center font-bold text-xs shadow-sm">
-                    C
-                  </div>
-                  <div className="flex-1 truncate">
-                    <div className="text-xs font-bold text-slate-800 group-hover:text-emerald-700">College Learner</div>
-                    <div className="text-[11px] text-slate-500 truncate">learner.project@gmail.com</div>
-                  </div>
-                </button>
-              </div>
+                  <button
+                    type="button"
+                    onClick={() => handleGoogleLogin(savedUser.name, savedUser.email)}
+                    className="w-full flex items-center gap-3 p-3 rounded-2xl border border-blue-200 bg-blue-50/50 hover:bg-blue-100/60 hover:border-blue-400 transition text-left group shadow-sm"
+                  >
+                    <div className="w-9 h-9 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold text-xs shadow-sm flex-shrink-0">
+                      {savedUser.name ? savedUser.name.charAt(0).toUpperCase() : 'G'}
+                    </div>
+                    <div className="flex-1 truncate">
+                      <div className="text-xs font-bold text-slate-800 group-hover:text-blue-700">
+                        {savedUser.name}
+                      </div>
+                      <div className="text-[11px] text-slate-500 truncate">{savedUser.email}</div>
+                    </div>
+                    <span className="text-[10px] font-bold text-blue-700 bg-white px-2 py-1 rounded-lg border border-blue-200">
+                      1-Click
+                    </span>
+                  </button>
+                </div>
+              ) : (
+                <p className="text-xs text-slate-500">
+                  Enter your Google Account details below:
+                </p>
+              )}
 
               {/* Custom Gmail Input */}
               <div className="pt-2 border-t border-slate-100 space-y-2.5">
@@ -822,6 +886,46 @@ export default function App() {
               Career Intelligence & Micro-Credential Platform
             </p>
           </div>
+
+          {/* 1-Click Access for Previously Logged In User */}
+          {savedUser && (
+            <div className="p-3.5 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-2xl space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-[10px] font-bold text-blue-900 uppercase tracking-wider flex items-center gap-1.5">
+                  <CheckCircle className="w-3.5 h-3.5 text-blue-600" />
+                  <span>Previous Account Found</span>
+                </span>
+                <button
+                  type="button"
+                  onClick={handleRemoveSavedUser}
+                  className="text-[10px] text-slate-400 hover:text-rose-600 font-semibold transition"
+                  title="Remove saved account"
+                >
+                  Forget
+                </button>
+              </div>
+
+              <button
+                type="button"
+                onClick={handleQuickLoginSaved}
+                className="w-full flex items-center gap-3 p-2.5 bg-white hover:bg-blue-50/80 border border-blue-300 rounded-xl transition text-left shadow-sm group"
+              >
+                <div className="w-9 h-9 rounded-full bg-blue-700 text-white flex items-center justify-center font-bold text-sm shadow-sm flex-shrink-0">
+                  {savedUser.name ? savedUser.name.charAt(0).toUpperCase() : 'U'}
+                </div>
+                <div className="flex-1 truncate">
+                  <div className="text-xs font-bold text-slate-900 group-hover:text-blue-700 flex items-center gap-1.5">
+                    <span className="truncate">{savedUser.name}</span>
+                    <span className="text-[10px] font-semibold px-1.5 py-0.5 bg-blue-100 text-blue-800 rounded">
+                      Click to Enter
+                    </span>
+                  </div>
+                  <div className="text-[11px] text-slate-500 truncate">{savedUser.email}</div>
+                </div>
+                <LogIn className="w-4 h-4 text-blue-600 group-hover:translate-x-0.5 transition flex-shrink-0" />
+              </button>
+            </div>
+          )}
 
           {/* Mode Tabs: Sign In vs Create Account */}
           <div className="grid grid-cols-2 p-1 bg-slate-100 rounded-2xl text-xs font-bold">
@@ -1013,24 +1117,7 @@ export default function App() {
             </form>
           )}
 
-          {/* Quick Demo One-Click Login */}
-          <div className="pt-2 border-t border-slate-100 text-center">
-            <button
-              type="button"
-              onClick={() => {
-                setAuthEmail('alex.morgan@example.com');
-                setLearnerName('Alex Morgan');
-                setAuthProvider('email');
-                setIsLoggedIn(true);
-              }}
-              className="w-full py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 hover:text-slate-800 font-bold text-xs rounded-xl transition flex items-center justify-center gap-2"
-            >
-              <Sparkles className="w-3.5 h-3.5 text-blue-600" />
-              <span>Quick Demo Access (One-Click)</span>
-            </button>
-          </div>
-
-          <div className="text-center text-[11px] text-slate-400">
+          <div className="text-center text-[11px] text-slate-400 pt-2 border-t border-slate-100">
             Secure login with verified digital credentials
           </div>
         </div>
@@ -1055,13 +1142,12 @@ export default function App() {
                 <h1 className="text-lg font-bold text-slate-900 tracking-tight">
                   SkillPulse
                 </h1>
-                <span className="text-[11px] px-2 py-0.5 rounded font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center gap-1">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                  Live Market Data (2026)
+                <span className="text-[11px] px-2 py-0.5 rounded font-semibold bg-blue-50 text-blue-700 border border-blue-200">
+                  Career Intelligence Platform
                 </span>
               </div>
               <p className="text-xs text-slate-500">
-                Job Demand Analysis • Skill-Gap Engine • Comprehensive Modules • Micro-Credentials
+                Skill-Gap Analyzer • Comprehensive Modules • Competency Assessment • Micro-Credentials
               </p>
             </div>
           </div>
@@ -1078,7 +1164,7 @@ export default function App() {
               <input
                 type="text"
                 value={learnerName}
-                onChange={(e) => setLearnerName(e.target.value)}
+                onChange={(e) => handleUpdateLearnerName(e.target.value)}
                 title="Edit learner name"
                 className="font-bold text-slate-900 bg-white px-2 py-1 rounded border border-slate-200 outline-none w-32 focus:border-blue-500"
               />
@@ -1143,18 +1229,6 @@ export default function App() {
             >
               <Award className="w-4 h-4" />
               <span>4. Digital Credential</span>
-            </button>
-
-            <button
-              onClick={() => navigateToTab('trends')}
-              className={`px-3.5 py-2 rounded-lg transition flex items-center gap-1.5 whitespace-nowrap ${
-                activeTab === 'trends'
-                  ? 'bg-blue-700 text-white shadow-sm'
-                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
-              }`}
-            >
-              <Sparkles className="w-4 h-4" />
-              <span>5. Market Demand Insights (₹ LPA)</span>
             </button>
           </nav>
         </div>
@@ -1856,7 +1930,7 @@ export default function App() {
                   <input
                     type="text"
                     value={learnerName}
-                    onChange={(e) => setLearnerName(e.target.value)}
+                    onChange={(e) => handleUpdateLearnerName(e.target.value)}
                     className="font-bold text-slate-900 bg-white px-2 py-0.5 rounded border border-slate-200 outline-none w-40 focus:border-blue-500"
                     title="Edit the recipient name printed on the certificate"
                   />
@@ -1946,80 +2020,6 @@ export default function App() {
                   </div>
                 </div>
 
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* ======================================================== */}
-        {/* TAB 5: GLOBAL MARKET DEMAND INTELLIGENCE (₹ IN RUPEES) */}
-        {/* ======================================================== */}
-        {activeTab === 'trends' && (
-          <div className="space-y-6">
-            <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-3">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                <div>
-                  <span className="text-xs font-bold text-blue-700 uppercase tracking-wider flex items-center gap-1.5">
-                    <IndianRupee className="w-3.5 h-3.5" />
-                    <span>Step 5 • Real-Time Market Demand & Compensation (₹ LPA)</span>
-                  </span>
-                  <h2 className="text-2xl font-bold text-slate-900 mt-1">
-                    Current Tech Skill Demand & Salary Benchmarks
-                  </h2>
-                </div>
-                <div className="text-xs font-semibold text-emerald-700 bg-emerald-50 px-3 py-1.5 rounded-full border border-emerald-200 flex items-center gap-1.5 self-start">
-                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                  <span>Live Market Data (2026)</span>
-                </div>
-              </div>
-              <p className="text-sm text-slate-600 leading-relaxed">
-                This intelligence dataset reflects real-world skill demand frequencies, job openings across India, average annual compensation in <strong>Lakhs Per Annum (₹ LPA)</strong>,
-                and hiring growth rates.
-              </p>
-            </div>
-
-            {/* Trends Table */}
-            <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-              <div className="overflow-x-auto">
-                <table className="w-full text-left text-xs">
-                  <thead className="bg-slate-50 border-b border-slate-200 text-slate-600 font-bold uppercase tracking-wider">
-                    <tr>
-                      <th className="p-4">Technology / Skill</th>
-                      <th className="p-4">Market Demand</th>
-                      <th className="p-4">Available Jobs</th>
-                      <th className="p-4">Salary in Rupees (₹ LPA)</th>
-                      <th className="p-4">Market Growth</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-100 text-slate-700">
-                    {MARKET_TRENDS.map((item, idx) => (
-                      <tr key={idx} className="hover:bg-slate-50 transition">
-                        <td className="p-4 font-bold text-slate-900">{item.skill}</td>
-                        <td className="p-4">
-                          <div className="flex items-center gap-2">
-                            <div className="w-16 bg-slate-200 h-2 rounded-full overflow-hidden">
-                              <div
-                                className="bg-blue-700 h-full rounded-full"
-                                style={{ width: item.demand }}
-                              />
-                            </div>
-                            <span className="font-semibold text-blue-700">{item.demand}</span>
-                          </div>
-                        </td>
-                        <td className="p-4">
-                          <span className="px-2 py-0.5 rounded-full font-semibold bg-blue-50 text-blue-700 border border-blue-200">
-                            {item.openings}
-                          </span>
-                        </td>
-                        <td className="p-4 font-mono font-bold text-slate-900 flex items-center gap-1">
-                          <IndianRupee className="w-3.5 h-3.5 text-slate-500" />
-                          <span>{item.avgSalary.replace('₹', '')}</span>
-                        </td>
-                        <td className="p-4 font-bold text-emerald-600">{item.growth}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
               </div>
             </div>
           </div>
