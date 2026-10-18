@@ -80,7 +80,7 @@ const startServer = async () => {
 
     app.listen(PORT, () => {
       console.log(`=======================================================`);
-      console.log(`🚀 SkillPulse Platform Backend Server Running on Port ${PORT}`);
+      console.log(`🚀 Micro Credential Platform Backend Server Running on Port ${PORT}`);
       console.log(`📡 Health Check: http://localhost:${PORT}/api/health`);
       console.log(`🛡️ Auth & Verification Endpoints Ready`);
       console.log(`=======================================================`);
