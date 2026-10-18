@@ -981,10 +981,10 @@ export default function App() {
               <Briefcase className="w-7 h-7" />
             </div>
             <h1 className="text-2xl font-black text-slate-900 tracking-tight">
-              SkillPulse
+              Micro Credential Platform
             </h1>
             <p className="text-xs text-slate-500 font-medium">
-              Career Intelligence & Micro-Credential Platform
+              Skill Gap Analysis, Modular Learning & Verified Digital Credentials
             </p>
           </div>
 
@@ -1241,7 +1241,7 @@ export default function App() {
             <div>
               <div className="flex items-center gap-2">
                 <h1 className="text-lg font-bold text-slate-900 tracking-tight">
-                  SkillPulse
+                  Micro Credential Platform
                 </h1>
                 <span className="text-[11px] px-2 py-0.5 rounded font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center gap-1.5">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
@@ -2121,7 +2121,7 @@ export default function App() {
                     <ShieldCheck className="w-8 h-8" />
                   </div>
                   <h4 className="text-xs font-mono font-bold tracking-widest text-slate-500 uppercase pt-2">
-                    SkillPulse Micro-Credential Verification Registry
+                    Micro Credential Platform Verification Registry
                   </h4>
                   <h3 className="text-2xl sm:text-3xl font-extrabold text-blue-950 uppercase tracking-wide">
                     Certificate of Competency
@@ -2420,7 +2420,7 @@ export default function App() {
       {/* Clean Global Footer */}
       <footer className="bg-white border-t border-slate-200 py-4 px-6 text-center text-xs text-slate-500 no-print mt-auto">
         <p>
-          <strong>SkillPulse</strong> • Global Skill Demand Intelligence & Micro-Credential Platform
+          <strong>Micro Credential Platform</strong> • Skill Gap Intelligence & Verified Digital Credentials
         </p>
         <p className="text-[11px] text-slate-400 mt-0.5">
           Engineered with React 18, Vite, TypeScript & Tailwind CSS • Live Market Intelligence (2026)

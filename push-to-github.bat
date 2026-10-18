@@ -1,11 +1,11 @@
 @echo off
-title Push SkillPulse to GitHub
+title Push Micro Credential Platform to GitHub
 echo ========================================================
-echo           Push SkillPulse Project to GitHub
+echo        Push Micro Credential Platform to GitHub
 echo ========================================================
 echo.
 echo Step 1: Go to https://github.com/new in your browser
-echo Step 2: Create a repository named "skillpulse-platform" (keep it empty, do not check README)
+echo Step 2: Create a repository named "micro-credential-platform" (keep it empty, do not check README)
 echo Step 3: Copy the HTTPS URL from GitHub
 echo.
 set /p REPO_URL="Enter your GitHub Repository URL: "

@@ -45,7 +45,7 @@ app.get('/api/health', (req, res) => {
   res.status(200).json({
     status: 'healthy',
     timestamp: new Date().toISOString(),
-    service: 'SkillPulse Micro-Credential Platform API',
+    service: 'Micro Credential Platform API',
     version: '1.0.0',
     mode: process.env.NODE_ENV || 'development',
     database: process.env.MONGODB_URI ? 'MongoDB Atlas / Local URI Configured' : 'Resilient In-Memory High-Performance Datastore',
